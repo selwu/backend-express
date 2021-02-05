@@ -1,14 +1,20 @@
 const router = require('express').Router();
 const { users } = require('./db');
 
-router.get('/users/:id', (req, res) => {
-  const { id } = req.params;
-  if (!users[id]) {
-    res.status(200).send('Sorry we dont have him');
+const doesUserExist = (req, res, next) => {
+  if (!users[req.params.id]) {
+    res.send(`Такого пользователя не существует`);
     return;
   }
-  const { name, age } = users[id];
-  res.status(200).send(`name: ${name}, age: ${age}`);
-});
+
+  next(); // вызываем next
+};
+
+const sendUser = (req, res) => {
+  res.send(users[req.params.id]);
+};
+
+router.get('/users/:id', doesUserExist);
+router.get('/users/:id', sendUser);
 
 module.exports = router;

@@ -1,11 +1,15 @@
 const express = require('express');
 const router = require('./router');
-const api = require('./api');
 const { Port = 3000 } = process.env;
 const app = express();
 
+const logger = (req, res, next) => {
+  console.log('Запрос залогирован!');
+  next();
+};
+
+app.use(logger);
 app.use('/', router);
-app.use('/api', api);
 
 app.listen(Port, () => {
   console.log('ok', Port);
