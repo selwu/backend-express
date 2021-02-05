@@ -3,7 +3,7 @@ const { users } = require('./db');
 
 const doesUserExist = (req, res, next) => {
   if (!users[req.params.id]) {
-    res.send(`Такого пользователя не существует`);
+    res.status(404).send({});
     return;
   }
 
