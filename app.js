@@ -1,7 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const router = require('./routes/users');
+const routerUser = require('./routes/users');
+const routerTodo = require('./routes/todo');
 const { Port = 5000 } = process.env;
 const app = express();
 
@@ -38,6 +39,7 @@ app.use((req, res, next) => {
 
 app.use(logger);
 app.use(bodyParser.json());
-app.use('/users', router);
+app.use('/users', routerUser);
+app.use('/todo', routerTodo);
 
 start();
