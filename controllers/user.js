@@ -1,3 +1,4 @@
+const bcrypt = require('bcrypt');
 const User = require('../models/user');
 
 const getUsers = (req, res) => {
@@ -7,10 +8,34 @@ const getUsers = (req, res) => {
 };
 
 const createUser = (req, res) => {
-  const { name, about, email } = req.body;
-  User.create({ name, about, email })
-    .then((user) => res.send({ data: user }))
-    .catch((err) => res.status(500).send({ message: ' Some Error' }));
+  const { password, email } = req.body;
+
+  bcrypt.hash(password, 10).then((hash) =>
+    User.create({ password: hash, email })
+      .then((user) => res.send(user))
+      .catch((err) => res.status(400).send(err)),
+  );
+};
+
+const login = (req, res) => {
+  const { password, email } = req.body;
+
+  User.findOne({ email })
+    .then((user) => {
+      if (!user) {
+        return Promise.reject(new Error('Wrong login or password'));
+      }
+      return bcrypt.compare(password, user.password);
+    })
+    .then((matched) => {
+      if (!matched) {
+        return Promise.reject(new Error('Wrong login or password'));
+      }
+      res.send({ message: 'Good !!!' });
+    })
+    .catch((err) => {
+      res.status(401).send({ message: err.message });
+    });
 };
 
 const updateUser = (req, res) => {
@@ -33,4 +58,4 @@ const deleteUser = (req, res) => {
     .catch((err) => res.status(500).send({ message: 'Some Error' }));
 };
 
-module.exports = { createUser, updateUser, deleteUser, getUsers };
+module.exports = { createUser, updateUser, deleteUser, getUsers, login };

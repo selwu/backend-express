@@ -11,7 +11,7 @@ const createTodo = (req, res) => {
 
 const getTodos = (req, res) => {
   Todo.find({})
-    .populate('creator')
+    // .populate('creator')
     .then((todo) => res.send({ data: todo }));
 };
 
