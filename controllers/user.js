@@ -18,18 +18,16 @@ const registration = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  const { password, email } = req.body;
-
-  return User.findUserByCredentials(email, password)
-    .then((user) => {
-      const token = jwt.sign({ _id: user._id }, "some-secret-key", {
-        expiresIn: "2d",
-      });
-      res.send({ token });
-    })
-    .catch((err) => {
-      res.status(401).send({ message: err.message });
+  try {
+    const { password, email } = req.body;
+    const credential = await User.findUserByCredentials(email, password);
+    const token = await jwt.sign({ _id: credential._id }, "some-secret-key", {
+      expiresIn: "2d",
     });
+    res.send({ token });
+  } catch (err) {
+    res.status(401).send({ message: err.message });
+  }
 };
 
 const getUsers = (req, res) => {
