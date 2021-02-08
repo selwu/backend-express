@@ -1,22 +1,22 @@
 const express = require('express');
+require('dotenv').config();
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const routerUser = require('./routes/users');
-const routerTodo = require('./routes/todo');
-const { Port = 5000 } = process.env;
+const routerTodo = require('./routes/file');
+const { Port } = process.env;
+const mongoUri = process.env.MONGO_CONFIG;
 const app = express();
+const { errors } = require('celebrate');
 
 const start = async () => {
   try {
-    await mongoose.connect(
-      'mongodb+srv://sasha:sasha@cluster0.iixb1.mongodb.net/app?retryWrites=true&w=majority',
-      {
-        useNewUrlParser: true,
-        useCreateIndex: true,
-        useFindAndModify: false,
-        useUnifiedTopology: true,
-      },
-    );
+    await mongoose.connect(mongoUri, {
+      useNewUrlParser: true,
+      useCreateIndex: true,
+      useFindAndModify: false,
+      useUnifiedTopology: true,
+    });
 
     app.listen(Port, () => {
       console.log('ok', Port);
@@ -36,10 +36,10 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   next();
 });
-
 app.use(logger);
 app.use(bodyParser.json());
 app.use('/users', routerUser);
 app.use('/todo', routerTodo);
+app.use(errors());
 
 start();

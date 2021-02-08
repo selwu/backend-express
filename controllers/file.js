@@ -1,16 +1,16 @@
-const Todo = require('../models/todo');
+const File = require('../models/file');
 
 const createTodo = (req, res) => {
   const { text, creatorId } = req.body;
   console.log(creatorId);
 
-  Todo.create({ text, creator: creatorId })
+  File.create({ text, creator: creatorId })
     // .populate('creator')
     .then((todo) => res.send({ data: todo }));
 };
 
 const getTodos = (req, res) => {
-  Todo.find({})
+  File.find({})
     // .populate('creator')
     .then((todo) => res.send({ data: todo }));
 };

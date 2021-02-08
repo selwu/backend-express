@@ -7,11 +7,6 @@ const todoSchema = new mongoose.Schema({
     maxlength: 20,
     required: true,
   },
-  creator: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'user',
-    required: true,
-  },
 });
 
-module.exports = mongoose.model('todo', todoSchema);
+module.exports = mongoose.model('file', todoSchema);
