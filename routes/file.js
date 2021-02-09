@@ -1,8 +1,8 @@
 const router = require('express').Router();
-const { createTodo, getTodos } = require('../controllers/file');
+const authMiddlewares = require('../controllers/middlewares/auth');
+const fileController = require('../controllers/file');
 
-router.get('', getTodos);
-
-router.post('', createTodo);
+router.post('', authMiddlewares, fileController.createDir);
+router.get('', authMiddlewares, fileController.getFiles);
 
 module.exports = router;

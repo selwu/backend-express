@@ -2,6 +2,8 @@ const bcrypt = require('bcrypt');
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
 const secretKey = process.env.JWT_SECRET;
+const fileService = require('../services/fileService');
+const File = require('../models/file');
 
 const registration = async (req, res) => {
   try {
@@ -12,22 +14,53 @@ const registration = async (req, res) => {
     }
     const userHash = await bcrypt.hash(password, 5);
     const user = await User.create({ password: userHash, email });
+    await fileService.createDir(new File({ user: user.id, name: '' }));
     res.send({ message: 'user was created' });
   } catch (err) {
-    res.status(400).send(err);
+    res.status(400).send({ messageControllerUser: err });
   }
 };
 
 const login = async (req, res) => {
   try {
     const { password, email } = req.body;
-    const credential = await User.findUserByCredentials(email, password);
-    const token = await jwt.sign({ _id: credential._id }, secretKey, {
+    const user = await User.findUserByCredentials(email, password);
+    const token = jwt.sign({ _id: user._id }, secretKey, {
       expiresIn: '2d',
     });
-    res.send({ token });
+    res.send({
+      token,
+      user: {
+        email: user.email,
+        diskSpace: user.diskSpace,
+        avatar: user.avatar,
+        usedSpace: user.usedSpace,
+        id: user._id,
+      },
+    });
   } catch (err) {
     res.status(401).send({ message: err.message });
+  }
+};
+
+const auth = async (req, res) => {
+  try {
+    const user = await User.findOne({ id: req.user.id });
+    const token = jwt.sign({ _id: user._id }, secretKey, {
+      expiresIn: '2d',
+    });
+    res.send({
+      token,
+      user: {
+        email: user.email,
+        diskSpace: user.diskSpace,
+        avatar: user.avatar,
+        usedSpace: user.usedSpace,
+        id: user._id,
+      },
+    });
+  } catch (err) {
+    res.send({ message: 'Ошибка сервера' });
   }
 };
 
@@ -37,24 +70,4 @@ const getUsers = (req, res) => {
     .catch((err) => res.status(500).send({ message: 'Some Error' }));
 };
 
-const updateUser = (req, res) => {
-  User.findByIdAndUpdate(
-    req.params.id,
-    { name: req.body.name },
-    {
-      new: true,
-      runValidators: true,
-      upsert: true,
-    },
-  )
-    .then((user) => res.send({ user }))
-    .catch((err) => res.status(500).send({ message: 'Some Error' }));
-};
-
-const deleteUser = (req, res) => {
-  User.findByIdAndDelete(req.params.id)
-    .then((user) => res.send({ user }))
-    .catch((err) => res.status(500).send({ message: 'Some Error' }));
-};
-
-module.exports = { registration, updateUser, deleteUser, getUsers, login };
+module.exports = { registration, getUsers, login, auth };
