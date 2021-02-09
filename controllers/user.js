@@ -26,15 +26,36 @@ const login = async (req, res) => {
       expiresIn: '2d',
     });
     res.send({ 
-      token, 
+      token, user: {
       email: user.email,
       diskSpace: user.diskSpace,
       avatar: user.avatar,
       usedSpace: user.usedSpace,
       id: user._id,
+    }
     });
   } catch (err) {
     res.status(401).send({ message: err.message });
+  }
+};
+
+const auth = async (req, res) => {
+  try {
+    const user = await User.findOne({id: req.user.id});
+    const token = jwt.sign({ _id: user._id }, secretKey, {
+      expiresIn: '2d',
+    });
+    res.send({ 
+      token, user: {
+      email: user.email,
+      diskSpace: user.diskSpace,
+      avatar: user.avatar,
+      usedSpace: user.usedSpace,
+      id: user._id,
+    }
+    });
+  } catch (err) {
+    res.send({message: 'Ошибка сервера'});
   }
 };
 
@@ -44,24 +65,4 @@ const getUsers = (req, res) => {
     .catch((err) => res.status(500).send({ message: 'Some Error' }));
 };
 
-const updateUser = (req, res) => {
-  User.findByIdAndUpdate(
-    req.params.id,
-    { name: req.body.name },
-    {
-      new: true,
-      runValidators: true,
-      upsert: true,
-    },
-  )
-    .then((user) => res.send({ user }))
-    .catch((err) => res.status(500).send({ message: 'Some Error' }));
-};
-
-const deleteUser = (req, res) => {
-  User.findByIdAndDelete(req.params.id)
-    .then((user) => res.send({ user }))
-    .catch((err) => res.status(500).send({ message: 'Some Error' }));
-};
-
-module.exports = { registration, updateUser, deleteUser, getUsers, login };
+module.exports = { registration, getUsers, login, auth };
