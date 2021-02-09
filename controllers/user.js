@@ -21,11 +21,18 @@ const registration = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { password, email } = req.body;
-    const credential = await User.findUserByCredentials(email, password);
-    const token = await jwt.sign({ _id: credential._id }, secretKey, {
+    const user = await User.findUserByCredentials(email, password);
+    const token = jwt.sign({ _id: user._id }, secretKey, {
       expiresIn: '2d',
     });
-    res.send({ token });
+    res.send({ 
+      token, 
+      email: user.email,
+      diskSpace: user.diskSpace,
+      avatar: user.avatar,
+      usedSpace: user.usedSpace,
+      id: user._id,
+    });
   } catch (err) {
     res.status(401).send({ message: err.message });
   }
