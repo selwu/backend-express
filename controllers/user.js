@@ -2,6 +2,8 @@ const bcrypt = require('bcrypt');
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
 const secretKey = process.env.JWT_SECRET;
+const fileService = require('../services/fileService');
+const File = require('../models/file');
 
 const registration = async (req, res) => {
   try {
@@ -12,9 +14,10 @@ const registration = async (req, res) => {
     }
     const userHash = await bcrypt.hash(password, 5);
     const user = await User.create({ password: userHash, email });
+    await fileService.createDir(new File({ user: user.id, name: '' }));
     res.send({ message: 'user was created' });
   } catch (err) {
-    res.status(400).send(err);
+    res.status(400).send({ messageControllerUser: err });
   }
 };
 
@@ -25,14 +28,15 @@ const login = async (req, res) => {
     const token = jwt.sign({ _id: user._id }, secretKey, {
       expiresIn: '2d',
     });
-    res.send({ 
-      token, user: {
-      email: user.email,
-      diskSpace: user.diskSpace,
-      avatar: user.avatar,
-      usedSpace: user.usedSpace,
-      id: user._id,
-    }
+    res.send({
+      token,
+      user: {
+        email: user.email,
+        diskSpace: user.diskSpace,
+        avatar: user.avatar,
+        usedSpace: user.usedSpace,
+        id: user._id,
+      },
     });
   } catch (err) {
     res.status(401).send({ message: err.message });
@@ -41,21 +45,22 @@ const login = async (req, res) => {
 
 const auth = async (req, res) => {
   try {
-    const user = await User.findOne({id: req.user.id});
+    const user = await User.findOne({ id: req.user.id });
     const token = jwt.sign({ _id: user._id }, secretKey, {
       expiresIn: '2d',
     });
-    res.send({ 
-      token, user: {
-      email: user.email,
-      diskSpace: user.diskSpace,
-      avatar: user.avatar,
-      usedSpace: user.usedSpace,
-      id: user._id,
-    }
+    res.send({
+      token,
+      user: {
+        email: user.email,
+        diskSpace: user.diskSpace,
+        avatar: user.avatar,
+        usedSpace: user.usedSpace,
+        id: user._id,
+      },
     });
   } catch (err) {
-    res.send({message: 'Ошибка сервера'});
+    res.send({ message: 'Ошибка сервера' });
   }
 };
 

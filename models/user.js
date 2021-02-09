@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema({
   avatar: {
     type: String,
   },
-  files: [{ type: mongoose.Schema.Types.ObjectId, ref: 'file' }],
+  files: [{ type: mongoose.Schema.Types.ObjectId, ref: 'File' }],
 });
 
 userSchema.statics.findUserByCredentials = function (email, password) {
@@ -39,4 +39,4 @@ userSchema.statics.findUserByCredentials = function (email, password) {
   });
 };
 
-module.exports = mongoose.model('user', userSchema);
+module.exports = mongoose.model('User', userSchema);
