@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
-const authMiddlewares = require('../controllers/middlewares/auth');
-const { registration, login, auth } = require('../controllers/user');
+const authMiddlewares = require('../middlewares/auth');
+const { registration, login, auth, allUsers } = require('../controllers/user');
 
 router.post(
   '/registration',
@@ -28,5 +28,7 @@ router.post(
 );
 
 router.get('/auth', authMiddlewares, auth);
+
+router.get('/all', allUsers);
 
 module.exports = router;

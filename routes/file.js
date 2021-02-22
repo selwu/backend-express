@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const authMiddlewares = require('../controllers/middlewares/auth');
+const authMiddlewares = require('../middlewares/auth');
 const fileController = require('../controllers/file');
 
 router.post('', authMiddlewares, fileController.createDir);

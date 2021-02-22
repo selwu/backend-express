@@ -64,10 +64,10 @@ const auth = async (req, res) => {
   }
 };
 
-const getUsers = (req, res) => {
+const allUsers = (req, res) => {
   User.find({})
     .then((users) => res.send({ users }))
     .catch((err) => res.status(500).send({ message: 'Some Error' }));
 };
 
-module.exports = { registration, getUsers, login, auth };
+module.exports = { registration, allUsers, login, auth };
